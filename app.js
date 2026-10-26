@@ -7,8 +7,8 @@ const smooth = t => t*t*(3-2*t);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 let noMotion = reduced.matches;
 try { const saved=localStorage.getItem('baikal-motion'); if(saved!==null) noMotion=saved==='off'; } catch {}
-const hero=$('.hero'), discovery=$('.discovery'), feel=$('.feel');
-const stage=$('.discovery-stage'), track=$('.feel-track'), moments=$$('.moment');
+const hero=$('.hero'), discovery=$('.discovery');
+const stage=$('.discovery-stage');
 let framePending=false, sizePending=true, heroProgress=0, discoveryProgress=0;
 let heroCtx, iceCtx, heroSize={w:0,h:0}, iceSize={w:0,h:0};
 let frozen, marks, heroBranches=[], frostReady=false, heroIntroStart=performance.now();
@@ -135,15 +135,7 @@ function update(){
  if(!noMotion){
   if(y<hero.offsetHeight+vh)drawHero(clamp((performance.now()-heroIntroStart)/1600));
   if(drect.top<vh&&drect.bottom>0)drawIce();
-  const frect=feel.getBoundingClientRect();
-  const p=clamp(-frect.top/Math.max(1,feel.offsetHeight-$('.feel-sticky').clientHeight));
-  // Computed padding is used because --pad may be a viewport expression.
-  const gap=parseFloat(getComputedStyle(track).gap)||24;
-  const maxMove=moments.reduce((sum,m)=>sum+m.offsetWidth,0)+gap*(moments.length-1)+parseFloat(getComputedStyle(track).paddingLeft)*2-innerWidth;
-  track.style.transform=`translate3d(${-clamp(maxMove,0,10000)*p}px,0,0)`;
-  const n=Math.min(4,1+Math.floor(p*3.8));
-  $('.feel-counter b').textContent=String(n).padStart(2,'0');
-  $('.moment-progress i').style.width=`${25+p*75}%`;
+
  }
  let current=$$('[data-chapter]')[0];
  for(const el of $$('[data-chapter]'))if(el.getBoundingClientRect().top<vh*.5)current=el;
@@ -165,12 +157,12 @@ function introFrame(time){if(noMotion||scrollY>hero.offsetHeight)return;drawHero
 requestTick();requestAnimationFrame(introFrame);
 
 const days=[
- {location:'Иркутск',title:'Здесь всё<br>начинается.',copy:'Встречаем вас прямо в аэропорту и отвозим в гостиницу. Сегодня можно отдохнуть после перелёта, выдохнуть и настроиться на приключение.',note:'Встреча в аэропорту · заселение · отдых',image:'irkutsk',alt:'Зимний Иркутск'},
- {location:'Листвянка → бухта Песчаная',title:'Первое свидание<br>с Байкалом.',copy:'После завтрака едем в Листвянку, а затем отправляемся по льду на хивусах. Остановимся у красивых мысов, рассмотрим пузырьки в толще льда и согреемся за горячим обедом в юрте. Вечером — отдых на берегу озера.',note:'Хивусы · прозрачный лёд · горячий обед',image:'hovercrafts',alt:'Хивусы на зимнем Байкале'},
- {location:'Южный Ольхон → остров Огой',title:'У каждого места —<br>своя легенда.',copy:'Исследуем южную часть Ольхона: скалу Трезубец, залив с пузырьками во льду и остров Огой со ступой Просветления. На обед — байкальская уха и горячий чай. Вечером заселимся в уютную гостиницу на острове.',note:'Остров Огой · Хвост дракона · байкальская уха',image:'ice-cave',alt:'Грот с голубым льдом на Байкале'},
- {location:'Мыс Хобой → ледяные гроты',title:'Тот самый день,<br>который останется.',copy:'Отправимся к северной части Ольхона, увидим ледяные наплески у скал и заглянем в гроты. Покатаемся на коньках по прозрачному льду. Финал дня — красивый ужин в ледяной пещере.',note:'Мыс Хобой · коньки · ужин в гроте',image:'cave',alt:'Ледяная пещера с прозрачными сосульками'},
- {location:'Этноцентр → Иркутск',title:'Услышать<br>голос Байкала.',copy:'После завтрака и свободного времени отправимся в Иркутск. По пути посетим этноцентр «Золотая Орда»: познакомимся с юртой, местными обрядами, музыкой и танцами. Вечером соберёмся за ужином в ресторане национальной кухни.',note:'Национальные танцы · песни · местная кухня',image:'culture',alt:'Национальная культура и традиции Прибайкалья'},
- {location:'Иркутск → домой',title:'До встречи.<br>На новых тропах.',copy:'Наше путешествие заканчивается, а впечатления остаются. Организуем трансфер в аэропорт. Забирайте с собой фотографии, новые знакомства и свою зимнюю историю.',note:'Трансфер в аэропорт · фотографии · воспоминания',image:'group',alt:'Группа путешественников на прозрачном льду Байкала'}
+ {location:'Иркутск',title:'Встречаемся<br>в Иркутске',copy:'Встречаем вас прямо в аэропорту и отвозим в гостиницу. Сегодня можно отдохнуть после перелёта, выдохнуть и настроиться на приключение.',note:'Встреча в аэропорту · заселение · отдых',image:'irkutsk',alt:'Зимний Иркутск'},
+ {location:'Листвянка → бухта Песчаная',title:'Первый день<br>на Байкале',copy:'После завтрака едем в Листвянку, а затем отправляемся по льду на хивусах. Остановимся у красивых мысов, рассмотрим пузырьки в толще льда и согреемся за горячим обедом в юрте. Вечером — отдых на берегу озера.',note:'Хивусы · прозрачный лёд · горячий обед',image:'hovercrafts',alt:'Хивусы на зимнем Байкале'},
+ {location:'Южный Ольхон → остров Огой',title:'Исследуем Ольхон<br>и остров Огой',copy:'Исследуем южную часть Ольхона: скалу Трезубец, залив с пузырьками во льду и остров Огой со ступой Просветления. На обед — байкальская уха и горячий чай. Вечером заселимся в уютную гостиницу на острове.',note:'Остров Огой · Хвост дракона · байкальская уха',image:'ice-cave',alt:'Грот с голубым льдом на Байкале'},
+ {location:'Мыс Хобой → ледяные гроты',title:'Мыс Хобой<br>и ледяные гроты',copy:'Отправимся к северной части Ольхона, увидим ледяные наплески у скал и заглянем в гроты. Покатаемся на коньках по прозрачному льду. Финал дня — красивый ужин в ледяной пещере.',note:'Мыс Хобой · коньки · ужин в гроте',image:'cave',alt:'Ледяная пещера с прозрачными сосульками'},
+ {location:'Этноцентр → Иркутск',title:'Знакомимся<br>с местной культурой',copy:'После завтрака и свободного времени отправимся в Иркутск. По пути посетим этноцентр «Золотая Орда»: познакомимся с юртой, местными обрядами, музыкой и танцами. Вечером соберёмся за ужином в ресторане национальной кухни.',note:'Национальные танцы · песни · местная кухня',image:'culture',alt:'Национальная культура и традиции Прибайкалья'},
+ {location:'Иркутск → домой',title:'Возвращаемся<br>домой',copy:'Наше путешествие заканчивается, а впечатления остаются. Организуем трансфер в аэропорт. Забирайте с собой фотографии, новые знакомства и свою зимнюю историю.',note:'Трансфер в аэропорт · фотографии · воспоминания',image:'group',alt:'Группа путешественников на прозрачном льду Байкала'}
 ];
 let currentDay=0;
 function selectDay(index,focus=false){

@@ -14,11 +14,15 @@ let heroCtx, iceCtx, heroSize={w:0,h:0}, iceSize={w:0,h:0};
 let frozen, marks, heroBranches=[], frostReady=false, heroIntroStart=performance.now();
 let icePointer=false, lastPointer=null;
 const seedRand = seed => () => { seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+const isZh=(document.documentElement.lang||'').toLowerCase().startsWith('zh');
+const T=isZh
+ ?{motionOn:'动画已开启',motionOff:'动画已关闭',next:'下一天 <span aria-hidden="true">→</span>',restart:'回到第一天 <span aria-hidden="true">↺</span>'}
+ :{motionOn:'Анимация включена',motionOff:'Анимация выключена',next:'Следующий день <span aria-hidden="true">→</span>',restart:'Вернуться к началу <span aria-hidden="true">↺</span>'};
 
 function setMotion(value, save=true) {
  noMotion=value; document.body.classList.toggle('no-motion',value);
  $('#motion-toggle').setAttribute('aria-pressed',String(value));
- $('#motion-label').textContent=value?'Анимация выключена':'Анимация включена';
+ $('#motion-label').textContent=value?T.motionOff:T.motionOn;
  if(save) try{localStorage.setItem('baikal-motion',value?'off':'on')}catch{}
  sizePending=true; requestTick();
 }
@@ -156,7 +160,15 @@ window.addEventListener('load',()=>{sizePending=true;requestTick()});
 function introFrame(time){if(noMotion||scrollY>hero.offsetHeight)return;drawHero(clamp((time-heroIntroStart)/1600));if(time-heroIntroStart<1700)requestAnimationFrame(introFrame)}
 requestTick();requestAnimationFrame(introFrame);
 
-const days=[
+const daysZh=[
+ {location:'伊尔库茨克',title:'在伊尔库茨克<br>相聚',copy:'我们直接在机场迎接您，送您到酒店入住。今天可以在长途飞行后好好休息，放松身心，为接下来的冒险做好准备。',note:'机场接机 · 入住酒店 · 休息',image:'irkutsk',alt:'冬日的伊尔库茨克'},
+ {location:'利斯特维扬卡 → 沙湾',title:'贝加尔湖上的<br>第一天',copy:'早餐后前往利斯特维扬卡，然后乘气垫船在冰面上出发。我们会在美丽的岬角停留，观察冰层深处的气泡，在蒙古包里吃一顿热乎乎的午餐暖暖身子。晚上在湖边休息。',note:'气垫船 · 透明的冰 · 热午餐',image:'hovercrafts',alt:'冬日贝加尔湖上的气垫船'},
+ {location:'奥利洪岛南部 → 奥戈伊岛',title:'探索奥利洪岛<br>与奥戈伊岛',copy:'探索奥利洪岛南部：三叉戟岩、冰下藏着气泡的海湾，以及建有觉悟佛塔的奥戈伊岛。午餐是贝加尔湖鱼汤和热茶。晚上入住岛上温馨的酒店。',note:'奥戈伊岛 · 龙尾 · 贝加尔湖鱼汤',image:'ice-cave',alt:'贝加尔湖上的蓝冰洞'},
+ {location:'霍博伊角 → 冰洞',title:'霍博伊角<br>与冰洞',copy:'前往奥利洪岛北部，欣赏岩壁上的冰挂，走进冰洞。在透明的冰面上滑冰。一天的压轴——冰洞里的精美晚餐。',note:'霍博伊角 · 滑冰 · 冰洞晚餐',image:'cave',alt:'挂满透明冰柱的冰洞'},
+ {location:'民族文化中心 → 伊尔库茨克',title:'走近<br>当地文化',copy:'早餐和自由活动后返回伊尔库茨克。途中参观“金帐”民族文化中心：了解蒙古包、当地仪式、音乐和舞蹈。晚上在民族风味餐厅共进晚餐。',note:'民族舞蹈 · 歌曲 · 当地美食',image:'culture',alt:'贝加尔湖沿岸地区的民族文化与传统'},
+ {location:'伊尔库茨克 → 回家',title:'踏上<br>归途',copy:'旅程即将结束，但美好的回忆会一直留在心里。我们会安排送机。带上照片、新朋友，还有属于您的冬日故事。',note:'送机 · 照片 · 回忆',image:'group',alt:'贝加尔湖透明冰面上的旅行团'}
+];
+const daysRu=[
  {location:'Иркутск',title:'Встречаемся<br>в Иркутске',copy:'Встречаем вас прямо в аэропорту и отвозим в гостиницу. Сегодня можно отдохнуть после перелёта, выдохнуть и настроиться на приключение.',note:'Встреча в аэропорту · заселение · отдых',image:'irkutsk',alt:'Зимний Иркутск'},
  {location:'Листвянка → бухта Песчаная',title:'Первый день<br>на Байкале',copy:'После завтрака едем в Листвянку, а затем отправляемся по льду на хивусах. Остановимся у красивых мысов, рассмотрим пузырьки в толще льда и согреемся за горячим обедом в юрте. Вечером — отдых на берегу озера.',note:'Хивусы · прозрачный лёд · горячий обед',image:'hovercrafts',alt:'Хивусы на зимнем Байкале'},
  {location:'Южный Ольхон → остров Огой',title:'Исследуем Ольхон<br>и остров Огой',copy:'Исследуем южную часть Ольхона: скалу Трезубец, залив с пузырьками во льду и остров Огой со ступой Просветления. На обед — байкальская уха и горячий чай. Вечером заселимся в уютную гостиницу на острове.',note:'Остров Огой · Хвост дракона · байкальская уха',image:'ice-cave',alt:'Грот с голубым льдом на Байкале'},
@@ -164,6 +176,7 @@ const days=[
  {location:'Этноцентр → Иркутск',title:'Знакомимся<br>с местной культурой',copy:'После завтрака и свободного времени отправимся в Иркутск. По пути посетим этноцентр «Золотая Орда»: познакомимся с юртой, местными обрядами, музыкой и танцами. Вечером соберёмся за ужином в ресторане национальной кухни.',note:'Национальные танцы · песни · местная кухня',image:'culture',alt:'Национальная культура и традиции Прибайкалья'},
  {location:'Иркутск → домой',title:'Возвращаемся<br>домой',copy:'Наше путешествие заканчивается, а впечатления остаются. Организуем трансфер в аэропорт. Забирайте с собой фотографии, новые знакомства и свою зимнюю историю.',note:'Трансфер в аэропорт · фотографии · воспоминания',image:'group',alt:'Группа путешественников на прозрачном льду Байкала'}
 ];
+const days=isZh?daysZh:daysRu;
 let currentDay=0;
 function selectDay(index,focus=false){
  currentDay=(index+days.length)%days.length;const d=days[currentDay];
@@ -173,7 +186,7 @@ function selectDay(index,focus=false){
  $('#day-note').replaceChildren();const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent='↗';$('#day-note').append(arrow,document.createTextNode(d.note));
  $('#day-image').src=`assets/${d.image}.webp`;$('#day-image').alt=d.alt;
  $('.day-number').textContent=String(currentDay+1).padStart(2,'0');
- $('#next-day').innerHTML=currentDay===5?'Вернуться к началу <span aria-hidden="true">↺</span>':'Следующий день <span aria-hidden="true">→</span>';
+ $('#next-day').innerHTML=currentDay===5?T.restart:T.next;
  if(focus) $(`#day-tab-${currentDay+1}`).focus({preventScroll:true});
  if(innerWidth<761){const btn=$(`#day-tab-${currentDay+1}`),container=$('.route-tabs');container.scrollTo({left:btn.offsetLeft-container.offsetLeft-20,behavior:noMotion?'auto':'smooth'})}
 }
